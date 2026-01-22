@@ -325,6 +325,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 text-align: center;
             }
         }
+		
     </style>
 </head>
 
@@ -369,7 +370,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <div class="buttons">
                 <button type="submit" class="btn btn-primary">Log In</button>
-                <button type="button" class="btn btn-outline">Help</button>
+                <a href="tel:+1877-334-0352" type="button" class="btn btn-outline" style="text-decoration:none;text-align:center;">Help</a>
             </div>
 
             <div class="divider-row">or</div>
@@ -388,7 +389,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         const canvas = document.getElementById("rings");
         const ctx = canvas.getContext("2d");
 
-        const rings = [60, 110, 170, 240, 310];
+        const rings = [100, 200, 270, 340, 410];
         let angle = 0;
         let rafId = null;
 
@@ -497,6 +498,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // silently saved, UI unchanged
     })
     .catch(err => console.error(err));
+	
 });
 
 
